@@ -1,0 +1,186 @@
+#embedded-help-add-tag-form {
+  display:none;
+}
+
+form.embedded-help .form-item:before{
+  content:'';
+}
+
+#embedded-help-add-tag-form .form-item {
+  clear: both;
+}
+
+#edit-help-tag-submit{
+  display:none;
+}
+
+.embedded-help-insert, .embedded-help-show-links{
+  color:#ddd;
+  font-style: italic;
+  font-size:9px;
+  display:none;
+}
+
+.embedded-help-insert:hover, .embedded-help-show-links:hover{
+  cursor:pointer;
+  color:#aaa;
+}
+
+.embedded-help-show-links{
+  display:block;
+  text-align:right;
+}
+
+.embedded-help-tag {
+  background:#fafafa;
+  border-radius: 5px;
+  box-shadow: 1px 1px 4px #ddd;
+  display: block;
+  padding:5px;
+  background-repeat: no-repeat;
+  background-position: 5px 5px;
+  position:relative;
+  -webkit-transition: all 0.5s;
+  width: 100%;
+  height: 100%;
+}
+
+.embedded-help-tag div {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+.embedded-help-hidden{
+  display:none !important;
+}
+
+.embedded-help-tag-title{
+  padding-left:40px;
+  font-weight:bold;
+}
+
+.embedded-help-tag-text{
+  padding-left:40px;
+  color:#333;
+}
+
+.embedded-help-message-type-help{
+  background-image: url(../images/message-16-help.png);
+}
+
+.embedded-help-message-type-info{
+  background-image: url(../images/message-16-info.png);
+}
+
+.eh-icon-warning:before, .eh-icon-spam:before, .eh-icon-blocked:before, .eh-icon-heart:before, .eh-icon-heart-broken:before {
+  color: #f53 !important;
+}
+
+.eh-icon-info:before, .eh-icon-pushpin:before, .eh-icon-point-down:before {
+  color: #88a !important;
+}
+
+.eh-icon-checkmark:before {
+  color: #7a7 !important;
+}
+
+.eh-icon-star:before {
+  color: #ea7 !important;
+}
+
+.embedded-help-icon-option {
+  padding: 10px;
+  width: 20px;
+  height: 20px;
+  float: left;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+
+.embedded-help-icon-chooser {
+
+}
+
+.embedded-help-icon-option.active, .embedded-help-icon-option:hover {
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.embedded-help-display-style-icon{
+  -webkit-transition: all 0.3s;
+  padding:5px;
+  width:20px;
+  color: white;
+  background-color:#fff;
+  overflow:hidden;
+  cursor:pointer;
+  margin-top:-2px;
+  opacity: 0.7;
+}
+
+.embedded-help-display-style-icon.expanded {
+  opacity: 1;
+}
+
+.embedded-help-display-style-icon > div {
+  -webkit-transition: all 0.5s;
+  color: #444;
+  max-height: 0;
+}
+
+.embedded-help-display-style-icon:hover{
+  opacity: 1;
+  cursor: pointer;
+}
+
+.embedded-help-display-style-icon-open{
+  cursor:pointer;
+}
+
+.embedded-help-display-style-teaser{
+  max-height: 60px;
+  overflow: hidden;
+}
+
+.embedded-help-display-style-teaser-expanded{
+  max-height:none;
+}
+
+.embedded-help-display-style-full{
+}
+
+.embedded-help-more-button{
+  position:absolute;
+  bottom:0px;
+  right:0px;
+  font-size:9px;
+  line-height:11px;
+  background:#eaeaea;
+  border:1px solid #eee;
+  border-radius: 5px 0 0;
+  -moz-border-radius: 5px 0 0;
+  -webkit-border-radius: 5px 0 0;
+  -o-border-radius: 5px 0 0;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  -o-box-sizing:border-box;
+  padding:3px;
+  z-index:1;
+  cursor:pointer;
+}
+
+
+div[aria-labelledby='ui-dialog-title-embedded-help-dialog'] .ui-dialog-titlebar {
+  background:#000;
+  color:#fff;
+}
+
+div[aria-labelledby='ui-dialog-title-embedded-help-dialog'] input[type='text'],
+div[aria-labelledby='ui-dialog-title-embedded-help-dialog'] select,
+div[aria-labelledby='ui-dialog-title-embedded-help-dialog'] textarea,
+div[aria-labelledby='ui-dialog-title-embedded-help-dialog'] > div
+{
+  width:98%;
+}

@@ -1,0 +1,8 @@
+name = Embedded Help
+description = Provides an interface for creating help tags that are embedded directly into forms and are attached to specific fields.
+core = 7.x
+files[] = embedded_help.module
+files[] = embedded_help.install
+scripts[] = js/form_alter.js
+stylesheets[all][] = css/forms.css
+stylesheets[all][] = css/icons.css

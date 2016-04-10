@@ -1,0 +1,243 @@
+<?php
+/**
+ * @file embedded_help.module
+ *
+ * Provides an interface for creating help tags that are embedded directly into 
+ * forms and are attached to specific fields.
+ *
+ */
+
+/**
+ * Implements hook_permission().
+ * 
+ * Define two separate permissions, one for viewing help tags, and another for
+ * modifying them. 
+ */
+function embedded_help_permission() {
+  return array(
+    'modify embedded help tags' => array(
+      'title' => t('Modify Embedded Help Tags'), 
+      //'description' => t('Allow users to modify embedded help tags'),
+    ),
+    'view embedded help tags' => array(
+      'title' => t('View Embedded Help Tags'), 
+      //'description' => t('Allow users to modify embedded help tags'),
+    ) 
+  );
+}
+
+/**
+ * Implements hook_page_build().
+ * 
+ * Adds jQuery UI dialog library to the page, and adds the "Modify Help Tag"
+ * form.
+ */
+function embedded_help_page_build(&$page) {
+  if ( _embedded_help_check_eligibility() && user_access('view embedded help tags') ) {
+    drupal_add_library('system', 'ui.dialog');
+    $page['content']['embedded_help']['form'] = drupal_get_form('embedded_help_add_tag_form');
+  }
+}
+
+/**
+ * Returns the "Modify Help Tag" form, called by embedded_help_page_build().
+ */
+function embedded_help_add_tag_form($form, &$form_state) {
+  /*
+  if ( isset($form_state['triggering_element']) ) {
+    if ( $form_state['triggering_element']['#value'] === 'Delete' ) {
+      $targetForm = $form_state['input']['help_tag_target_form'];
+      $targetField = $form_state['input']['help_tag_target_field'];
+      
+    }
+  }
+  */
+  $form = array();
+  $form['help_tag_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t("Title"),
+    '#description' => t("Optional"),
+    '#required' => FALSE,
+  );
+  $form['help_tag_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t("Help Tag Text"),
+    '#required' => TRUE,
+  );
+  $form['help_tag_message_type'] = array(
+    '#type' => 'select',
+    '#title' => 'Icon',
+    '#options' => array(
+      'info'=>'info',
+      'pushpin'=>'pushpin',
+      'point-down'=>'point-down',
+      'checkmark'=>'checkmark',
+      'star'=>'star',
+      'warning'=>'warning',
+      'blocked'=>'blocked',
+      'spam'=>'spam',
+      'heart'=>'heart',
+      'heart-broken'=>'heart-broken',
+      'grin'=>'grin',
+      'happy'=>'happy',
+      'angry'=>'angry',
+      'confused'=>'confused',
+      'neutral'=>'neutral',
+      'sad'=>'sad',
+      'shocked'=>'shocked',
+      'smiley'=>'smiley',
+      'tongue'=>'tongue',
+      'wink'=>'wink',
+      'wondering'=>'wondering',
+    )
+  );
+  $form['help_tag_display_style'] = array(
+    '#type' => 'select',
+    '#title' => 'Display Style',
+    '#options' => array(
+      'icon' => 'Clickable Icon',
+      'teaser' => 'Expandable Teaser',
+      'full' => 'Full Text'
+    )
+  );
+  $form['help_tag_target_form'] = array(
+    '#type' => 'hidden',
+    '#default_value' => 'none'
+  );
+  $form['help_tag_target_field'] = array(
+    '#type' => 'hidden',
+    '#default_value' => 'none'
+  );
+  $form['help_tag_delete'] = array(
+    '#type' => 'hidden',
+    '#default_value' => 'false'
+  );
+  $form['help_tag_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t("Submit")
+  );
+  
+  
+  return $form;
+}
+
+/**
+ * Writes/updates the database when the user submits the "Modify Help Tag"
+ * form
+ */
+function embedded_help_add_tag_form_submit($form_data) {
+  if ( user_access('modify embedded help tags') ) {
+    $title = $form_data['help_tag_title']['#value'];
+    $text = $form_data['help_tag_text']['#value'];
+    $message_type = $form_data['help_tag_message_type']['#value'];
+    $display_style = $form_data['help_tag_display_style']['#value'];
+    $targetForm = $form_data['help_tag_target_form']['#value'];
+    $targetField = $form_data['help_tag_target_field']['#value'];
+    $delete = $form_data['help_tag_delete']['#value'];
+
+    if ($delete === 'true') {
+      $deletion = db_delete('embedded_help')
+        ->condition('form_id', $targetForm)
+        ->condition('field_name', $targetField)
+        ->execute();
+      if ($deletion) {
+        drupal_set_message(t('An Embedded Help tag has been wiped from the face of the database.'));
+        return true;
+      }
+    }
+    
+    // ACTION: Filter text into HTML
+    $text = htmlspecialchars($text);
+    $text = nl2br($text);
+
+    // ACTION: Check if a DB entry exists for this field:
+    $db_name = 'embedded_help';
+    $query = db_select($db_name, 'db');
+    $query->addField('db', 'id');
+    $query->condition('form_id', $targetForm);
+    $query->condition('field_name', $targetField);
+    $results = $query->execute();
+    $dbEntry = $results->fetchObject();
+    if ( empty($dbEntry) ) {
+      // ACTION: Insert new database entry:
+      $query = db_insert($db_name);
+      $query->fields(array(
+        'form_id' => $targetForm,
+        'field_name' => $targetField,
+        'title' => $title,
+        'text' => $text,
+        'message_type' => $message_type,
+        'display_style' => $display_style
+      ));
+      $results = $query->execute();
+      if ($results == 1) {
+        drupal_set_message(t('Help Tag Added.'));
+      }
+    } 
+    else {
+      /// ACTION: Update database entry:
+      $query = db_update($db_name);
+      $query->fields(array(
+        'form_id' => $targetForm,
+        'field_name' => $targetField,
+        'title' => $title,
+        'text' => $text,
+        'message_type' => $message_type,
+        'display_style' => $display_style
+      ));
+      $query->condition('form_id', $targetForm);
+      $query->condition('field_name', $targetField);
+      $results = $query->execute();
+      if ($results === 1) {
+        drupal_set_message(t('Help Tag Updated.'));
+      }
+    } // END: If statement for insert|update
+  } // END: If statement for user access check
+} // END: embedded_help_add_tag_form_submit function
+
+/**
+ * Implements hook_form_alter().
+ * 
+ * Retrieves help tag data for relevant forms and embeds it in a hidden form 
+ * field as JSON (for jQuery retrieval and manipulation).
+ */
+function embedded_help_form_alter(&$form, &$form_state, $form_id) {
+  if (_embedded_help_check_eligibility() && $form_id !== 'embedded_help_add_tag_form' && user_access('view embedded help tags') ) {
+    $classes = 'embedded-help';
+    if ( user_access('modify embedded help tags') ) {
+      $classes .= ' embedded-help-modifiable';
+    }
+    $form['#attributes']['class'][] = $classes;
+    $db_name = 'embedded_help';
+    $css_form_id = str_replace('_', '-', $form_id);
+    $results = db_select($db_name, 'meh')
+        ->fields('meh')
+        ->condition('form_id', $css_form_id)
+        ->execute();
+    $help_tags = array();
+    while ($record = $results->fetchAssoc()) {
+      $help_tags[$record['field_name']] = $record;
+    }
+    $help_tags_json = json_encode($help_tags);
+    $form['embedded_help_data'] = array(
+      '#type' => 'hidden',
+      '#value' => $help_tags_json
+    );
+  }
+}
+
+function _embedded_help_check_eligibility() {
+  if (arg(0) === 'admin') {
+    return TRUE;
+  } 
+  elseif (arg(0) === 'node' && arg(1) === 'add') {
+    return TRUE;
+  } 
+  elseif (arg(0) === 'node' && arg(2) === 'edit') {
+    return TRUE;
+  } 
+  elseif (arg(0) === 'user' && arg(2) === 'edit') {
+    return TRUE;
+  }
+  return FALSE;
+}

@@ -1,0 +1,78 @@
+<?php
+/**
+ * @file embedded_help.install
+ * Contains install and update functions for embedded_help.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function embedded_help_install() {
+  //drupal_install_schema('embedded_help');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function embedded_help_uninstall() {
+  drupal_uninstall_schema('embedded_help');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function embedded_help_schema() {
+  $schema['embedded_help'] = array(
+    'description' => 'Stores data for individual embedded help tags.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Help tag ID.',
+        'no export' => TRUE,
+      ),
+      'form_id' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'Drupal ID for form to be altered.',
+      ),
+      'field_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'Name of the specific field that the help tag is attached to.',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => FALSE,
+        'description' => 'Optional help tag title.',
+      ),
+      'text' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'The help tag text itself.',
+      ),
+      'message_type' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => 'help',
+        'description' => 'Determines the styling of the tag. Help, Info, or Warning.',
+      ),
+      'display_style' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => 'icon',
+        'description' => 'Icon, teaser, or full text display.',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
